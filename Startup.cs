@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 
 namespace RouletteApi
 {
@@ -26,6 +27,15 @@ namespace RouletteApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            IoCRegister.AddRegistration(services);
+            services.AddSwaggerGen(conf =>
+            {
+                conf.SwaggerDoc("V1", new OpenApiInfo
+                {
+                    Title = "RouletteApi",
+                    Version = "V1"
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -35,6 +45,11 @@ namespace RouletteApi
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseSwagger();
+            app.UseSwaggerUI(conf =>
+            {
+               conf.SwaggerEndpoint("/swagger/V1/swagger.json", "Api MLC");
+            });
 
             app.UseHttpsRedirection();
 
