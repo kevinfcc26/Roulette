@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RouletteApi.Models;
+using RouletteApi.Services;
 
 namespace RouletteApi.Controllers
 {
@@ -11,14 +12,18 @@ namespace RouletteApi.Controllers
     [ApiController]
     public class RouletteController : ControllerBase
     { 
-        [HttpPost]
-        public IActionResult Post([FromBody] string value)
+        private readonly RouletteService _rouletteService;
+
+        public RouletteController(RouletteService rouletteService)
         {
-            return Ok(new RouletteModel ( ){
-                id = 1,
-                name = "nueva",
-                open = false
-            });
+            _rouletteService = rouletteService;
+        }
+        [HttpPost]
+        public IActionResult Post()
+        {
+            var model = _rouletteService.CreateRoulette(1);
+
+            return Ok(model);
         }
     }
 }

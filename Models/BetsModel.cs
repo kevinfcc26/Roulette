@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace RouletteApi.Models
 {
-    public class RouletteModel
+    public class BetsModel
     {
         public int id { get; set; }
-        public string name { get; set; }
-        public bool open { get; set;}
+        public int? number {get; set;}
+        public string money {get; set;}
     }
 }
