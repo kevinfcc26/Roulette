@@ -11,6 +11,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis.Extensions.Core;
+using StackExchange.Redis.Extensions.Newtonsoft;
+using StackExchange.Redis.Extensions.Core.Configuration;
+using StackExchange.Redis.Extensions.Core.Abstractions;
+
 
 namespace RouletteApi
 {
@@ -36,6 +41,8 @@ namespace RouletteApi
                     Version = "V1"
                 });
             });
+            var redisConfiguration = Configuration.GetSection("Redis").Get<RedisConfiguration>();
+            services.AddStackExchangeRedisExtensions<NewtonsoftSerializer>(redisConfiguration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,7 +55,7 @@ namespace RouletteApi
             app.UseSwagger();
             app.UseSwaggerUI(conf =>
             {
-               conf.SwaggerEndpoint("/swagger/V1/swagger.json", "Api MLC");
+               conf.SwaggerEndpoint("/swagger/V1/swagger.json", "RouletteApi");
             });
 
             app.UseHttpsRedirection();

@@ -8,7 +8,7 @@ namespace RouletteApi.Repositories
 {
     public class RouletteRepository {
 
-        public RouletteModel Create(int id){
+        public RouletteModel Create(){
             var Model =  new RouletteModel() {
                 id = 1,
                 name = "hola",

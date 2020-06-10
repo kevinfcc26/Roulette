@@ -13,8 +13,8 @@ namespace RouletteApi.Services
         {
             _rouletteRepository = rouletteRepository;
         }
-        public RouletteModel CreateRoulette(int id){
-            var model = _rouletteRepository.Create(id);
+        public RouletteModel CreateNewRoulette(){
+            var model = _rouletteRepository.Create();
             
             return model;
 
