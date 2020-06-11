@@ -8,17 +8,32 @@ using RouletteApi.Repositories;
 namespace RouletteApi.Services
 {
     public class RouletteService {
-        private readonly RouletteRepository _rouletteRepository;
-        public RouletteService(RouletteRepository rouletteRepository)
+        private readonly RedisRepository _redisRepository;
+        public RouletteService(RedisRepository redisRepository)
         {
-            _rouletteRepository = rouletteRepository;
+            _redisRepository =  redisRepository;
         }
-        public RouletteModel CreateNewRoulette(){
-            var model = _rouletteRepository.Create();
-            
-            return model;
-
-        }
-
+        public async Task<RouletteModel> CreateNewRoulette(){
+               var roulettes = await _redisRepository.Read("Roulette");
+               if(roulettes == null){
+                   roulettes = new List<RouletteModel>{
+                       new RouletteModel{
+                           id = 1,
+                           open = false
+                       }
+                   };
+                   await _redisRepository.Add("Roulette", roulettes );
+                   return roulettes.FirstOrDefault(x => x.id == 1);
+               }else {
+                    int countRoulettes =roulettes.Count();
+                    RouletteModel roulette = new RouletteModel{
+                    id = countRoulettes+1,
+                    open = false
+                    };
+                    roulettes.Add(roulette);
+                    await _redisRepository.Add("Roulette", roulettes );
+                    return roulette;
+               }
+        }        
     }
 }

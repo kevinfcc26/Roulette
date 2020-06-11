@@ -24,7 +24,7 @@ namespace RouletteApi
         }
         public static IServiceCollection AddRegisterRepositories(IServiceCollection services)
         {
-            services.AddTransient<RouletteRepository>();
+            services.AddTransient<RedisRepository>();
 
             return services;
         }

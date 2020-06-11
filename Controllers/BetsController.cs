@@ -12,6 +12,11 @@ namespace RouletteApi.Controllers
     [ApiController]
     public class BetsController : ControllerBase
     {
+        private readonly RouletteService _rouletteService;
+        public BetsController(RouletteService rouletteService)
+        {
+            _rouletteService = rouletteService;
+        }
 
         [HttpPost]
         public IActionResult CreateBet([FromBody]BetsModel bet)

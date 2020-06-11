@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RouletteApi.Models;
 using RouletteApi.Services;
-using StackExchange.Redis.Extensions.Core.Abstractions;
 
 namespace RouletteApi.Controllers
 {
@@ -14,19 +13,16 @@ namespace RouletteApi.Controllers
     public class RouletteController : ControllerBase
     { 
         private readonly RouletteService _rouletteService;
-        private IRedisCacheClient _redisCacheClient;
-
-        public RouletteController(RouletteService rouletteService, IRedisCacheClient redisCacheClient)
+        public RouletteController(RouletteService rouletteService)
         {
             _rouletteService = rouletteService;
-            _redisCacheClient = redisCacheClient;
         }
         [HttpPost]
         public async Task<IActionResult> CreateRoulette()
         {
-            var model = _rouletteService.CreateNewRoulette();
-            bool  isAdd = await _redisCacheClient.Db0.AddAsync("Roulette", model, DateTimeOffset.Now.AddMinutes(10));
-            return Ok(model);
+            var roulette = await _rouletteService.CreateNewRoulette();
+
+            return Ok(roulette.id);
         }
 
         [HttpPut]

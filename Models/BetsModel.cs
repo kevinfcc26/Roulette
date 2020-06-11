@@ -10,6 +10,6 @@ namespace RouletteApi.Models
         public int id { get; set; }
         public int? number {get; set;}
         public string? color {get; set;}
-        public string money {get; set;}
+        public int money {get; set;}
     }
 }

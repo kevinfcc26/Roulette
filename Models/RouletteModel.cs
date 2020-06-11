@@ -8,7 +8,7 @@ namespace RouletteApi.Models
     public class RouletteModel
     {
         public int id { get; set; }
-        public string name { get; set; }
         public bool open { get; set;}
+        public virtual List<BetsModel> bets { get; set;}
     }
 }
