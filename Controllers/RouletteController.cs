@@ -17,7 +17,7 @@ namespace RouletteApi.Controllers
         {
             _rouletteService = rouletteService;
         }
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> CreateRoulette()
         {
             var roulette = await _rouletteService.CreateNewRoulette();
@@ -25,11 +25,11 @@ namespace RouletteApi.Controllers
             return Ok(roulette.id);
         }
 
-        [HttpPut]
-        public IActionResult OpenRulette( int id){
-            var status = true;
-            return Ok(status);
+        [HttpPut("{id}")]
+        public async Task<IActionResult> OpenRulette( int id){
+            var status = await _rouletteService.OpenRoulette(id);
+           
+            return Ok(status.open);
         }
-
     }
 }

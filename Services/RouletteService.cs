@@ -34,6 +34,21 @@ namespace RouletteApi.Services
                     await _redisRepository.Add("Roulette", roulettes );
                     return roulette;
                }
-        }        
+        }   
+        public async Task<RouletteModel> OpenRoulette(int id){
+            var roulettes = await _redisRepository.Read("Roulette");
+            RouletteModel roulette = roulettes.FirstOrDefault(x => x.id == id);
+            if(roulette == null){
+                return new RouletteModel{
+                    id= 0,
+                    open = false
+                };
+            } else {
+            roulette.open = true;
+            await _redisRepository.Add("Roulette",roulettes);
+            
+            return roulettes.Find(x => x.id == id);
+            }
+        }     
     }
 }
