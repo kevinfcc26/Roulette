@@ -5,12 +5,11 @@ using System.Threading.Tasks;
 
 namespace RouletteApi.Models
 {
-    public class BetsModel
+    public class BetApiModel
     {
-        public int id { get; set; }
-        public int? number { get; set; }
+        public int idRoulette { get; set;}
+        public int number { get; set; }
         public string? color { get; set; }
         public int money { get; set; }
-        public bool winOperation { get; set;}
     }
 }
