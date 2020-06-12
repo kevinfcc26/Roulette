@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using RouletteApi.Services;
+using RouletteApi.Mappers;
 
 namespace RouletteApi.Controllers
 {
@@ -22,7 +23,7 @@ namespace RouletteApi.Controllers
         {
             var request = await _rouletteService.CloseRoulette(id);
 
-            return Ok(request);
+            return Ok(ResponseMapper.MapClose(request));
         }
         
     }
