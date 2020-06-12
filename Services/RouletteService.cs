@@ -81,7 +81,21 @@ namespace RouletteApi.Services
             }
             return roulette.bets.Find(bet => bet.id == roulette.bets.Count());
         }   
-
+        public async Task<RouletteModel> CloseRoulette(int id){
+            var roulettes = await _redisRepository.Read("Roulette");
+            RouletteModel roulette = roulettes.FirstOrDefault(x => x.id == id);
+            if(roulette == null){
+                return new RouletteModel{
+                    id= 0,
+                    open = false
+                };
+            } else {
+            roulette.open = false;
+            await _redisRepository.Add("Roulette",roulettes);
+            
+            return roulettes.Find(x => x.id == id);
+            }
+        }
         private bool operation(int number){
             if(new Random().Next(36) == number){
                     return true;
