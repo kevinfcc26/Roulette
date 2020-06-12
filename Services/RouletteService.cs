@@ -15,29 +15,23 @@ namespace RouletteApi.Services
             _redisRepository =  redisRepository;
         }
         public async Task<RouletteModel> CreateNewRoulette(){
-               var roulettes = await _redisRepository.Read("Roulette");
+               var roulettes = await _redisRepository.Read("Roulettes");
                if(roulettes == null){
-                   roulettes = new List<RouletteModel>{
-                       new RouletteModel{
-                           id = 1,
-                           open = false
-                       }
-                   };
-                   await _redisRepository.Add("Roulette", roulettes );
-                   return roulettes.FirstOrDefault(x => x.id == 1);
+                    roulettes = emptyRoulettes();
                }else {
-                    int countRoulettes =roulettes.Count();
+                    int countRoulettes =roulettes.Count() +1;
                     RouletteModel roulette = new RouletteModel{
-                    id = countRoulettes+1,
-                    open = false
+                        id = countRoulettes,
+                        open = false
                     };
                     roulettes.Add(roulette);
-                    await _redisRepository.Add("Roulette", roulettes );
-                    return roulette;
                }
+                await _redisRepository.Add("Roulettes", roulettes );
+                
+                return roulettes.FirstOrDefault(x => x.id == roulettes.Count());
         }   
         public async Task<RouletteModel> OpenRoulette(int id){
-            var roulettes = await _redisRepository.Read("Roulette");
+            var roulettes = await _redisRepository.Read("Roulettes");
             RouletteModel roulette = roulettes.FirstOrDefault(x => x.id == id);
             if(roulette == null){
                 return new RouletteModel{
@@ -46,43 +40,36 @@ namespace RouletteApi.Services
                 };
             } else {
             roulette.open = true;
-            await _redisRepository.Add("Roulette",roulettes);
+            await _redisRepository.Add("Roulettes",roulettes);
             
             return roulettes.Find(x => x.id == id);
             }
         }
         public async Task<BetsModel> NewBet(BetApiModel betApi){
             bool winOperation = false;
-            var roulettes = await _redisRepository.Read("Roulette");
-            if(betApi.money >= 10000){
-                return new BetsModel{
-                    id = 0
-                };
-            }
-            else if(betApi.number >= 0 && betApi.number <= 36 ){
-                winOperation = operation(betApi.number);
-            } else if(betApi.color.ToLower() == "negro" || betApi.color.ToLower() == "rojo" ){
-                winOperation = operation(betApi.color);
-            }
+            var roulettes = await _redisRepository.Read("Roulettes");
             RouletteModel roulette = roulettes.FirstOrDefault(x => x.id == betApi.idRoulette);
+            if(!betValidation(betApi)){
+                return new BetsModel(){id = 0};
+            }
             if (roulette == null){
-                return new BetsModel {
-                    id = 0 //TODO
-                };
+                return new BetsModel {id = 0};
             }  
             if(roulette.bets == null){
                 roulette.bets = new List<BetsModel>();
+                winOperation = operation(betApi.number,betApi.color);
                 roulette.bets.Add(BetMapper.Map(betApi, 1, winOperation));
-                await _redisRepository.Add("Roulette",roulettes);
-                return roulette.bets.Find(x => x.id == betApi.idRoulette);
+                // await _redisRepository.Add("Roulette",roulettes);
+                // return roulette.bets.Find(x => x.id == betApi.idRoulette);
             } else {
+                winOperation = operation(betApi.number,betApi.color);
                 roulette.bets.Add(BetMapper.Map(betApi, roulette.bets.Count()+1, winOperation));
-                await _redisRepository.Add("Roulette",roulettes);
             }
+            await _redisRepository.Add("Roulettes",roulettes);
             return roulette.bets.Find(bet => bet.id == roulette.bets.Count());
         }   
         public async Task<RouletteModel> CloseRoulette(int id){
-            var roulettes = await _redisRepository.Read("Roulette");
+            var roulettes = await _redisRepository.Read("Roulettes");
             RouletteModel roulette = roulettes.FirstOrDefault(x => x.id == id);
             if(roulette == null){
                 return new RouletteModel{
@@ -91,27 +78,28 @@ namespace RouletteApi.Services
                 };
             } else {
             roulette.open = false;
-            await _redisRepository.Add("Roulette",roulettes);
+            await _redisRepository.Add("Roulettes",roulettes);
             
             return roulettes.Find(x => x.id == id);
             }
         }
         public async Task<List<RouletteModel>> GetAll(){
-            var roulettes = await _redisRepository.Read("Roulette");
+            var roulettes = await _redisRepository.Read("Roulettes");
             return roulettes;
         }
-        private bool operation(int number){
-            if(new Random().Next(36) == number){
-                    return true;
+        private bool operation(int number, string color){
+            if(number > 0 && number <= 36){
+                if(new Random().Next(36) == number){
+                        return true;
+                } else {
+                    return false;
+                }
             } else {
-                return false;
-            }
-        }
-        private bool operation(string color){
-            if(color == randomColor()){
-                    return true;
-            } else {
-                return false;
+                if(color == randomColor()){
+                        return true;
+                } else {
+                    return false;
+                }
             }
         }
         private string randomColor(){
@@ -123,6 +111,26 @@ namespace RouletteApi.Services
                 color = "rojo";
                 }
             return color;
+        }
+        private List<RouletteModel> emptyRoulettes(){
+            return new List<RouletteModel>{
+                new RouletteModel{
+                    id = 1,
+                    open = false
+                }
+            };
+        }
+        private bool betValidation(BetApiModel betApi){
+            if(betApi.money >= 10000){
+                return false;
+            }
+            if(betApi.number > 0 && betApi.number <= 36 ){
+                return true;
+            } else if(betApi.color.ToLower() == "negro" || betApi.color.ToLower() == "rojo" ){
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ namespace RouletteController
         public RouletteController( RouletteService rouletteService ){
             _rouletteService = rouletteService;
         }
-        [HttpGet]
+        [HttpGet("newRoulette")]
         public async Task<IActionResult> CreateRoulette()
         {
             var roulette = await _rouletteService.CreateNewRoulette();
