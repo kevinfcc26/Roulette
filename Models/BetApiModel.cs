@@ -9,7 +9,7 @@ namespace RouletteApi.Models
     {
         public int idRoulette { get; set;}
         public int number { get; set; }
-        public string? color { get; set; }
+        public string color { get; set; }
         public int money { get; set; }
     }
 }

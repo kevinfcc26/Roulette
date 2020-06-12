@@ -12,10 +12,11 @@ namespace RouletteApi.Controllers
     [ApiController]
     public class RouletteController : ControllerBase
     { 
-        private readonly RouletteService _rouletteService;
-        public RouletteController(RouletteService rouletteService)
+        private readonly RouletteService _rouletteService; ActionContext _context;
+        public RouletteController(RouletteService rouletteService, ActionContext context)
         {
             _rouletteService = rouletteService;
+            _context = context;
         }
         [HttpGet]
         public async Task<IActionResult> CreateRoulette()
@@ -31,5 +32,13 @@ namespace RouletteApi.Controllers
            
             return Ok(status.open);
         }
-    }
+        [HttpPost]
+        public async Task<IActionResult> CreateBet([FromBody]BetApiModel bet)
+        {
+            var header = _context.HttpContext.Request?.Headers["id"];
+            var newbet = await _rouletteService.NewBet(bet);
+
+            return Ok(newbet);
+        }
+    } 
 }

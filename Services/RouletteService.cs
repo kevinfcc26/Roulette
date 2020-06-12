@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RouletteApi.Models;
 using RouletteApi.Repositories;
+using RouletteApi.Mappers;
 
 namespace RouletteApi.Services
 {
@@ -49,6 +50,61 @@ namespace RouletteApi.Services
             
             return roulettes.Find(x => x.id == id);
             }
-        }     
+        }
+        public async Task<BetsModel> NewBet(BetApiModel betApi){
+            bool winOperation = false;
+            var roulettes = await _redisRepository.Read("Roulette");
+            if(betApi.money >= 10000){
+                return new BetsModel{
+                    id = 0
+                };
+            }
+            else if(betApi.number >= 0 && betApi.number <= 36 ){
+                winOperation = operation(betApi.number);
+            } else if(betApi.color.ToLower() == "negro" || betApi.color.ToLower() == "rojo" ){
+                winOperation = operation(betApi.color);
+            }
+            RouletteModel roulette = roulettes.FirstOrDefault(x => x.id == betApi.idRoulette);
+            if (roulette == null){
+                return new BetsModel {
+                    id = 0 //TODO
+                };
+            }  
+            if(roulette.bets == null){
+                roulette.bets = new List<BetsModel>();
+                roulette.bets.Add(BetMapper.Map(betApi, 1, winOperation));
+                await _redisRepository.Add("Roulette",roulettes);
+                return roulette.bets.Find(x => x.id == betApi.idRoulette);
+            } else {
+                roulette.bets.Add(BetMapper.Map(betApi, roulette.bets.Count()+1, winOperation));
+                await _redisRepository.Add("Roulette",roulettes);
+            }
+            return roulette.bets.Find(bet => bet.id == roulette.bets.Count());
+        }   
+
+        private bool operation(int number){
+            if(new Random().Next(36) == number){
+                    return true;
+            } else {
+                return false;
+            }
+        }
+        private bool operation(string color){
+            if(color == randomColor()){
+                    return true;
+            } else {
+                return false;
+            }
+        }
+        private string randomColor(){
+            string color;
+            if (new Random().Next(1) == 1){
+                color = "negro";
+                }
+            else {
+                color = "rojo";
+                }
+            return color;
+        }
     }
 }
