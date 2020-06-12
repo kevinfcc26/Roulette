@@ -96,6 +96,10 @@ namespace RouletteApi.Services
             return roulettes.Find(x => x.id == id);
             }
         }
+        public async Task<List<RouletteModel>> GetAll(){
+            var roulettes = await _redisRepository.Read("Roulette");
+            return roulettes;
+        }
         private bool operation(int number){
             if(new Random().Next(36) == number){
                     return true;
